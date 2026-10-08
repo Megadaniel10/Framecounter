@@ -1,0 +1,38 @@
+name: Build Geode Mod
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        config:
+          - name: Windows
+            os: windows-latest
+    
+    name: Build for ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Geode CLI
+        uses: geode-sdk/setup-geode@v1
+
+      - name: Build Mod
+        uses: geode-sdk/build-geode-mod@v1
+        with:
+          bindings: geode-sdk/bindings
+          bindings-ref: main
+          combine: true
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: geode-mod-${{ matrix.config.name }}
+          path: |
+            ${{ workspace }}/*.geode
